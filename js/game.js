@@ -34,13 +34,30 @@ princessImage.onload = function () {
 };
 princessImage.src = "images/princess.png";
 
+//stone image
+var stoneReady = false;
+var stoneImage = new Image();
+stoneImage.onload = function() {
+	stoneReady = true;
+};
+stoneImage.src = "images/stone.png";
+
+//monster image
+var monsterReady = false;
+var monsterImage = new Image();
+monsterImage.onload = function(){
+	monsterReady = true;
+};
+monsterImage.src = "images/monster.png";
+
 // Game objects
 var hero = {
 	speed: 256 // movement in pixels per second
 };
 var princess = {};
 var princessesCaught = 0;
-
+var stone = {};
+var monster = {};
 // Handle keyboard controls
 var keysDown = {};
 
@@ -58,26 +75,74 @@ var reset = function () {
 	hero.y = canvas.height / 2;
 
 	// Throw the princess somewhere on the screen randomly
-	princess.x = 32 + (Math.random() * (canvas.width - 64));
-	princess.y = 32 + (Math.random() * (canvas.height - 64));
+	//la princesa nunca sale donde los árboles.
+	princess.x = Math.floor(Math.random() * (455 - 25 + 1)) + 25;//455 25
+	princess.y = Math.floor(Math.random() * (415 - 25 + 1)) + 25;//25 415
+	stone.x = 0;
+	stone.y = 0;
+	if(princessesCaught > 4){
+		//bucles para que la piedra no esté nunca muy cerca de la princesa ni de la posicion inicial del heroe.
+		stone.x = hero.x;//455 25
+		while((-30 < (princess.x - stone.x)) && ((princess.x - stone.x) < 30) || 
+		(-30 < (hero.x - stone.x)) && ((hero.x - stone.x) < 30)){
+			stone.x = Math.floor(Math.random() * (455 - 25 + 1)) + 25;//455 25
+		}
+		stone.y = hero.y;//25 415
+		while((-30 < (princess.y - stone.y)) && ((princess.y - stone.y) < 30) ||
+		(-30 < (hero.y - stone.y)) && ((hero.y - stone.y) < 30)){
+			stone.y = Math.floor(Math.random() * (415 - 25 + 1)) + 25;//25 415
+		}
+		
+		
+	}
+	monster.x = 0;
+	monster.y = 0;
+	if(princessesCaught > 5){
+		monster.x = Math.floor(Math.random() * (455 - 25 + 1)) + 25;
+		monster.y = Math.floor(Math.random() * (415 - 25 + 1)) + 25;
+	}
 };
 
 // Update game objects
 var update = function (modifier) {
+	//en esta funcion controlamos que el hero no se salga de los árboles.
 	if (38 in keysDown) { // Player holding up
-		hero.y -= hero.speed * modifier;
+		if((hero.y < 25) || 
+		(((-30 < (stone.x - hero.x)) && ((stone.x - hero.x) < 30)) &&((stone.y+30) > hero.y) && (stone.y +30 < hero.y +30))){
+			hero.y -= 0 * modifier;
+		}else{
+			hero.y -= hero.speed * modifier;
+		}
 	}
 	if (40 in keysDown) { // Player holding down
-		hero.y += hero.speed * modifier;
+		if(hero.y > 415 ||
+		(((-30 < (stone.x - hero.x)) && ((stone.x - hero.x) < 30)) &&((stone.y-30) < hero.y) && (stone.y-30 > hero.y-30))){
+			hero.y += 0 * modifier;
+		}else{
+			hero.y += hero.speed * modifier;
+			
+		}
+		
 	}
 	if (37 in keysDown) { // Player holding left
-		hero.x -= hero.speed * modifier;
+		if(hero.x < 25 ||
+		(((-30 < (stone.y - hero.y)) && ((stone.y - hero.y) < 30)) &&((stone.x+30) > hero.x) && (stone.x+30 < hero.x+30))){
+			hero.x -= 0 * modifier;
+		}else{
+			hero.x -= hero.speed * modifier;
+		}
 	}
 	if (39 in keysDown) { // Player holding right
-		hero.x += hero.speed * modifier;
+		if(hero.x > 455 ||
+		(((-30 < (stone.y - hero.y)) && ((stone.y - hero.y) < 30)) &&((stone.x-30) < hero.x) && (stone.x-30 > hero.x-30))){
+			hero.x += 0 * modifier;
+		}else{
+			hero.x += hero.speed * modifier;
+		}
+			
 	}
 
-	// Are they touching?
+	// Are they touching princess and hero
 	if (
 		hero.x <= (princess.x + 16)
 		&& princess.x <= (hero.x + 16)
@@ -85,6 +150,15 @@ var update = function (modifier) {
 		&& princess.y <= (hero.y + 32)
 	) {
 		++princessesCaught;
+		reset();
+	}
+	if (
+		hero.x <= (monster.x + 16)
+		&& monster.x <= (hero.x + 16)
+		&& hero.y <= (monster.y + 16)
+		&& monster.y <= (hero.y + 32)
+	) {
+		princessesCaught = 0;
 		reset();
 	}
 };
@@ -96,11 +170,23 @@ var render = function () {
 	}
 
 	if (heroReady) {
-		ctx.drawImage(heroImage, hero.x, hero.y);
+			ctx.drawImage(heroImage, hero.x, hero.y);
 	}
 
 	if (princessReady) {
 		ctx.drawImage(princessImage, princess.x, princess.y);
+	}
+	if (princessesCaught > 4){
+		if (stoneReady){
+			ctx.drawImage(stoneImage,stone.x,stone.y);
+		}
+		
+	}
+	if(princessesCaught > 5){
+		if (monsterReady){
+			ctx.drawImage(monsterImage,monster.x,monster.y);
+		}
+	
 	}
 
 	// Score
