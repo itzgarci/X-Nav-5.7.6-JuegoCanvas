@@ -57,7 +57,9 @@ var hero = {
 var princess = {};
 var princessesCaught = 0;
 var stone = {};
-var monster = {};
+var monster = {
+	speed:34
+};
 // Handle keyboard controls
 var keysDown = {};
 
@@ -70,6 +72,25 @@ addEventListener("keyup", function (e) {
 }, false);
 
 // Reset the game when the player catches a princess
+var monstermove = function(modifier){
+	
+	//Movimientos del monstruo
+	if(hero.x > monster.x){
+		monster.x += monster.speed * modifier;
+	}else if( hero.x < monster.x){
+		monster.x -= monster.speed * modifier;
+	}else{
+		monster.x += 0 * modifier;
+	}
+	
+	if(hero.y > monster.y){
+		monster.y += monster.speed * modifier;
+	}else if( hero.y < monster.y){
+		monster.y -= monster.speed * modifier;
+	}else{
+		monster.y += 0 * modifier;
+	}
+}
 var reset = function () {
 	hero.x = canvas.width / 2;
 	hero.y = canvas.height / 2;
@@ -78,9 +99,10 @@ var reset = function () {
 	//la princesa nunca sale donde los árboles.
 	princess.x = Math.floor(Math.random() * (455 - 25 + 1)) + 25;//455 25
 	princess.y = Math.floor(Math.random() * (415 - 25 + 1)) + 25;//25 415
-	stone.x = 0;
-	stone.y = 0;
+	
 	if(princessesCaught > 4){
+		stone.x = 0;
+		stone.y = 0;
 		//bucles para que la piedra no esté nunca muy cerca de la princesa ni de la posicion inicial del heroe.
 		stone.x = hero.x;//455 25
 		while((-30 < (princess.x - stone.x)) && ((princess.x - stone.x) < 30) || 
@@ -95,11 +117,10 @@ var reset = function () {
 		
 		
 	}
-	monster.x = 0;
-	monster.y = 0;
 	if(princessesCaught > 5){
 		monster.x = Math.floor(Math.random() * (455 - 25 + 1)) + 25;
 		monster.y = Math.floor(Math.random() * (415 - 25 + 1)) + 25;
+		monster.speed = (monster.speed + ((princessesCaught - 5)));
 	}
 };
 
@@ -113,6 +134,7 @@ var update = function (modifier) {
 		}else{
 			hero.y -= hero.speed * modifier;
 		}
+		
 	}
 	if (40 in keysDown) { // Player holding down
 		if(hero.y > 415 ||
@@ -122,6 +144,7 @@ var update = function (modifier) {
 			hero.y += hero.speed * modifier;
 			
 		}
+	
 		
 	}
 	if (37 in keysDown) { // Player holding left
@@ -131,6 +154,7 @@ var update = function (modifier) {
 		}else{
 			hero.x -= hero.speed * modifier;
 		}
+		
 	}
 	if (39 in keysDown) { // Player holding right
 		if(hero.x > 455 ||
@@ -139,9 +163,13 @@ var update = function (modifier) {
 		}else{
 			hero.x += hero.speed * modifier;
 		}
+		
 			
 	}
-
+	if(princessesCaught >5){
+		monstermove(modifier);
+	}
+	
 	// Are they touching princess and hero
 	if (
 		hero.x <= (princess.x + 16)
