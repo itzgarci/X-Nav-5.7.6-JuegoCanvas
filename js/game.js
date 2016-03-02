@@ -99,10 +99,10 @@ var reset = function () {
 	//la princesa nunca sale donde los árboles.
 	princess.x = Math.floor(Math.random() * (455 - 25 + 1)) + 25;//455 25
 	princess.y = Math.floor(Math.random() * (415 - 25 + 1)) + 25;//25 415
-	
+	stone.x = 0;
+	stone.y = 0;
 	if(princessesCaught > 4){
-		stone.x = 0;
-		stone.y = 0;
+		
 		//bucles para que la piedra no esté nunca muy cerca de la princesa ni de la posicion inicial del heroe.
 		stone.x = hero.x;//455 25
 		while((-30 < (princess.x - stone.x)) && ((princess.x - stone.x) < 30) || 
@@ -117,10 +117,13 @@ var reset = function () {
 		
 		
 	}
+	monster.x = 0;
+	monster.y =0;
+	monster.speed = 34;
 	if(princessesCaught > 5){
 		monster.x = Math.floor(Math.random() * (455 - 25 + 1)) + 25;
 		monster.y = Math.floor(Math.random() * (415 - 25 + 1)) + 25;
-		monster.speed = (monster.speed + ((princessesCaught - 5)));
+		monster.speed = (monster.speed + (4*(princessesCaught - 5)));
 	}
 };
 
